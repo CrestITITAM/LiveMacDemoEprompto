@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ePrompto-ITAM</title>
+<!--===============================================================================================-->  
+  <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<!--===============================================================================================-->
+  <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+  <link rel="stylesheet" type="text/css" href="css/util.css">
+<!--===============================================================================================-->
+  <link rel="stylesheet" type="text/css" href="css/are_you_member.css">
+<!--===============================================================================================-->
+</head>
+<style>
+
+</style>
+<body>
+  <div class="col-md-12 col-xs-12">
+        <h3><center>Add / Allocate User</center></h3>
+        <div class="col-md-2 col-xs-12"></div>
+        <div class="col-md-8 col-xs-12">
+          <p id="error_message" style="text-align: center; color:red; font-weight: bold;"></p>
+          <form class="" id="login_form" name="login_form">
+              <input class="input100" type="hidden" name="client_no" id="client_no" >
+              <input class="input100" type="hidden" name="token" id="token" >
+              <input class="input100" type="hidden" name="sys_key" id="sys_key" >
+              <input class="input100" type="hidden" name="parent_id" id="parent_id" >
+              <span class="" id="err_member_email_id" style="color:#B22222; font-weight: bold;"></span>
+              <div class="fontusercontact">
+                <input class="input100" type="text" name="member_email_id" id="member_email_id" placeholder="Enter Member Email Id" >
+                <i class="fa fa-info-circle" title="Company administrator email id."></i>
+              </div>
+                <button type="button" class="btn member login100-form-btn btn-css" id="btn_validate" onclick="validate()">VALIDATE</button>
+               <div class="" id="allocate_user" style="display: none;">
+                  <select class="input100" id="alloc_users" onchange="checkNewUser(this.value);" >
+                    <option value="" selected disabled>Allocated User</option>
+                    <option value="new">Create New User</option>
+                  </select>
+               </div>
+               <div id="new_user_form" style="display: none;">
+                    <p style="text-align: center; font-weight: bold;">Enter User Detail</p>
+                    <div>
+                      <select id="title_type">
+                        <option value="Mr">Mr</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Mrs">Mrs</option>
+                      </select>  
+                       
+                      <input type="text" class="input100"  name="user_first_name" id="user_first_name" placeholder="First Name *"  pattern="[A-Za-z ]+" oninvalid="this.setCustomValidity('Enter only alphabet *')" oninput="this.setCustomValidity('')" >
+                      <span class="focus-input100" id="err_user_fname" ></span>
+                   </div>
+                    </br>
+
+                   <div class="">
+                      <input class="input100" type="text" name="user_last_name" id="user_last_name" placeholder="Last Name *"  pattern="[A-Za-z ]+" oninvalid="this.setCustomValidity('Enter only alphabet *')" oninput="this.setCustomValidity('')"> 
+                      <span class="focus-input100" id="err_user_lname" ></span>
+                   </div>
+                  
+                    <div class="fontusercontact">
+                       
+                        <input class="input100" type="text" name="user_contact_no" id="user_contact_no" placeholder="Contact No *" pattern="[0-9]*" maxlength="10" minlength="10" >
+                         <i class="fa fa-info-circle" title="For prompt IT issue resolution."></i> 
+                        <span class="focus-input100" id="err_user_contact" ></span>
+                      
+                    </div>
+
+                    <div class="">
+                      <input type="checkbox" class="form-check-input" id="is_parent_email" name="is_parent_email" style="width: 15px;margin-left: 0px;" onclick="IsChecked()">&nbsp;<span style="font-size: 13px; color: darkblue; font-weight: bold;">Same as Member Email Id</span>
+                    </div>
+                    
+                   <div class="fontuseremail">
+                    <input class="input100" type="email" name="user_email" id="user_email" placeholder="Email" onchange="checkDuplication(this.value)">
+                     <i class="fa fa-info-circle" title="For Updating the ticket status."></i>
+                    <span id="err_user_email" style="color:#B22222; font-weight: bold;" ></span>
+                    
+                   </div>    
+               </div>
+               <div id="after_validate" style="display: none;">
+                 <div class="form-group" id="device_name">
+                      <select class="form-control" id="device_type" >
+                        <option value="" selected disabled>Device Type</option>
+                      </select>
+                 </div>
+                 <div id="all-loader"></div>
+                 <button class="btn new login100-form-btn btn-css" type="submit">Submit</button>
+               </div>
+              <button type="button" class="btn new login100-form-btn btn-css" onclick="backToMain()" >BACK</button>
+          </form>
+        </div>
+        <div class="col-md-4 col-xs-12"></div>        
+  </div>
+</body>
+ <!--===============================================================================================-->
+  <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+  <script src="js/main.js"></script>
+<!--===============================================================================================-->
+  <script>window.$ = window.jQuery = require('jquery');</script>
+<!--===============================================================================================-->
+  <script>
+        const electron = require('electron');
+        const {ipcRenderer} = electron;
+        const {BrowserWindow} = require('electron').remote;
+        const {remote} = require('electron');
+        const root_url = remote.getGlobal('root_url');
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit',submitForm);
+
+        function submitForm(e){
+          e.preventDefault();
+            
+            var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+            var error_message = document.getElementById("error_message"); 
+            if(condition == 'OFFLINE'){
+              error_message.innerHTML = 'No internet connection';
+              return false;
+            }else{
+              error_message.innerHTML = '';
+            }
+
+            var sys_key = document.querySelector('#sys_key').value;
+            var user_id = document.querySelector('#alloc_users').value; 
+            var dev_type = document.querySelector('#device_type').value;
+            var client_no = document.querySelector('#client_no').value;
+            var token = document.querySelector('#token').value;
+            var title_type = document.querySelector('#title_type').value;
+            var user_first_name = document.querySelector('#user_first_name').value;
+            var user_last_name = document.querySelector('#user_last_name').value;
+            var user_email = document.querySelector('#user_email').value;
+            var user_contact_no = document.querySelector('#user_contact_no').value;
+            document.getElementById('all-loader').style.display='block';
+            if(sys_key != '' && user_id != '' && dev_type != '' ){ 
+              const input_values = {
+                system_key: sys_key, 
+                userId : user_id,
+                clientno: client_no,
+                token: token,
+                title: title_type,
+                usr_first_name: user_first_name,
+                usr_last_name: user_last_name,
+                usr_email: user_email,
+                usr_contact: user_contact_no,
+                device_type : dev_type
+              };
+              
+              ipcRenderer.send('login_data',input_values);
+              document.login_form.reset();
+            }
+          
+        }
+
+        function getSystemKey(){ 
+          const input_values = {};
+          ipcRenderer.send('getSystemKey',input_values);
+        }
+
+        function loadAllocUser(userId){
+
+          const input_values = {
+            userID: userId
+          };
+          ipcRenderer.send('loadAllocUser',input_values);
+        }
+
+        function loadDevType(isCloudUser){ 
+          var select = document.getElementById("device_type");
+          document.getElementById("device_type").options.length = 0;
+          var options = new Array();
+          if(isCloudUser == 'yes'){
+       // assign device type id s it is needed in asset table
+            options[0] = {name:"Laptop",value: 4};
+            options[1] = {name:"Desktop",value: 6};
+            //options[2] = {name:"Server",value: 7};
+            options[2] = {name:"Cloud Server",value: 16};
+
+          }else{
+           options[0] = {name:"Laptop",value: 4};
+           options[1] = {name:"Desktop",value: 6};
+          }
+        
+          for (var i = 0; i < options.length; i++) {
+            var el = document.createElement("option");
+            el.textContent = options[i].name;
+            el.value = options[i].value;
+            select.appendChild(el);
+          }
+        }
+
+        function validate(){ 
+
+          var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+          var error_message = document.getElementById("error_message"); 
+          if(condition == 'OFFLINE'){
+            error_message.innerHTML = 'No internet connection';
+            return false;
+          }else{
+            error_message.innerHTML = '';
+          }
+
+          var email = document.getElementById('member_email_id').value; 
+          document.getElementById('err_member_email_id').innerText = '';
+          if(email != ''){
+            
+            var vali_btn_suc =  document.getElementById('btn_validate');
+            vali_btn_suc.setAttribute('style', 'display:none !important');
+            const input_values = {
+               email: email
+            };
+            ipcRenderer.send('check_member_email',input_values);
+          }else{
+            document.getElementById('err_member_email_id').innerText = 'Member Email Id Required';
+          }
+        }
+       
+        function IsChecked(){
+          var checkBox = document.getElementById("is_parent_email");
+          if (checkBox.checked == true){
+            document.getElementById("user_email").value = document.getElementById("member_email_id").value;
+          } else {
+            document.getElementById("user_email").value = '';
+          }
+        }
+
+        function checkDuplication(email){ console.log(email);
+           var parent_user_id = document.getElementById("parent_id").value;
+           const input_values = {
+             email: email,
+             parent_id: parent_user_id
+           };
+           ipcRenderer.send('check_user_email',input_values);
+        }
+
+        function backToMain(){
+           const input_values = {};
+           ipcRenderer.send('cancel_login',input_values);
+        }
+
+        function checkNewUser(val){
+          if(val == 'new'){
+            document.getElementById("user_first_name").required = true;
+            document.getElementById("user_last_name").required = true;
+            // document.getElementById("user_email").required = true;
+            document.getElementById("user_contact_no").required = true;
+            document.getElementById('new_user_form').style.display="block";
+          }else{
+            document.getElementById("user_first_name").required = false;
+            document.getElementById("user_last_name").required = false;
+            // document.getElementById("user_email").required = false;
+            document.getElementById("user_contact_no").required = false;
+            document.getElementById('new_user_form').style.display="none";
+          }
+        }
+
+        ipcRenderer.on('checked_user_email', (event, data) => { 
+          if(data == 'invalid'){
+            document.getElementById("err_user_email").innerText = 'Email Id already exist';
+            document.getElementById("user_email").value = "";
+          }else{
+            document.getElementById("err_user_email").innerText = '';
+          }
+        });
+
+        ipcRenderer.on('setSysKey', (event, data) => { 
+          document.getElementById('sys_key').value = data;
+        });
+
+        ipcRenderer.on('setAllocUser', (event, data) => { console.log(data.length);
+          var select = document.getElementById("alloc_users"); 
+          document.getElementById("alloc_users").options.length = 0;
+
+          var el = document.createElement("option");
+          el.textContent = "-Select User-";
+          el.value = "";
+          select.appendChild(el);
+          el = document.createElement("option");
+          el.textContent = "Create New User";
+          el.value = "new";
+          select.appendChild(el);
+
+          if(data && data.length > 0 ){
+            for(var i = 0; i < data.length; i++) {
+              el = document.createElement("option");
+              el.textContent = data[i][0];
+              el.value = data[i][1];
+              select.appendChild(el);
+            }
+            getSystemKey();
+          }
+        });
+
+         ipcRenderer.on('checked_member_email', (event, data) => { 
+          if(data.status == 'invalid'){
+            document.getElementById("err_member_email_id").innerText = 'Email Id does not exist';
+            var vali_btn_err =  document.getElementById('btn_validate');
+            vali_btn_err.setAttribute('style', 'display:block !important');
+            //document.getElementById("member_email_id").value = "";
+          }else{ 
+            document.getElementById("err_member_email_id").innerText = '';
+            document.getElementById("parent_id").value = data.user_id;
+            document.getElementById("client_no").value = data.client_no;
+            document.getElementById("token").value = data.token;
+            loadAllocUser(data.user_id);
+            if(data.user_type == '2' && data.member_type == '5'){
+              loadDevType('yes');
+            }else{
+              loadDevType('no');
+            }
+            document.getElementById('after_validate').style.display='block';
+            document.getElementById('allocate_user').style.display='block';
+          }
+        });
+  </script>
+</html>

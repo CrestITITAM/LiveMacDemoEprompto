@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- <link rel="stylesheet" href="css/all.css"> -->
+    <script type="text/javascript" src="js/footer.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+    <!-- <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body onLoad="checkConnection()">
+    <div class ="transform-master">
+    <div class="top-bar">
+      <!-- <span class="pull-left">ePrompto-ITAM</span> -->
+
+      <a href="#" onclick="hideWindow()" class="pull-right">
+        <i class="fa fa-times close_btn" aria-hidden="true"></i>
+      </a>
+
+      <div id="settings" >
+        <i class="fa fa-cog" style="cursor: pointer" title="Settings" onclick="openNav()"></i>                  
+      </div>
+    
+    </div>
+
+    <div class="main_header">
+
+    </div>
+    <div class="text-sucess"><b>Open Portal</b></div>
+     <div class="" style="text-align: center;">  <span style="font-size: 12px;" id="version_no" >Version 2.0.61</span></div>
+    <div class="container">  
+        <form role="form">
+           <div id="network_issue" class="network_issue" >
+              <span>
+                <b>You are Offline. Turn on internet connection & 
+                  <a onclick="reconnect()">Reload</a>
+                </b>
+              </span>
+            </div>           
+
+            <a id="clickable-region" style="cursor: pointer" title="Click to Open Portal" href="https://developer.eprompto.com/members/client_home"></a>
+            <div class="col-xs-12">
+                <div class="col-xs-6">
+
+                      
+                      <img src="images/new_logo1_HD.jpg" alt="Laptop/PC" style="height: 87px;">
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="footer footer-bottom text-center" style="height: 44px;"> 
+      <a href="mailto:eprompto.helpdesk@crestit.in"><i class="footer-text" aria-hidden="true"></i> <span style="color:white;" class="footer-text"><b>eprompto.helpdesk@crestit.in</b></span></a><br>
+      <a href="tel:+912227814905"><i class="footer-text" aria-hidden="true"></i> <span style="color:white;" ><b>+91-22-27814905</b></span></a><span><a href="tel:+91 9773397735"><span style="color:white;" ><b> / +91 9773397735</b></span></a>
+      </span>
+    </div>
+
+  </div>
+  </body>
+</html>
+<script type="text/javascript">
+  const version = document.getElementById('version');
+  const notification = document.getElementById('notification');
+  const message = document.getElementById('message');
+  const restartButton = document.getElementById('restart-button');
+
+  const {remote} = require('electron');
+  const {BrowserWindow} = require('electron').remote;
+  
+  const client_id = remote.getGlobal('clientID');
+  const is_net_connected = remote.getGlobal('NetworkStatus');
+
+  ipcRenderer.on('update_available', () => {
+    ipcRenderer.removeAllListeners('update_available');
+    message.innerText = 'A new update is available. Downloading now...';
+    notification.classList.remove('hidden');
+  });
+
+  ipcRenderer.on('update_downloaded', () => {
+    ipcRenderer.removeAllListeners('update_downloaded');
+    message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+    restartButton.classList.remove('hidden');
+    notification.classList.remove('hidden');
+  });
+  // document.getElementById("closeBtn").addEventListener("click", (e) => {
+  //     var window = BrowserWindow.getFocusedWindow();
+  //     window.close();
+  // });
+  
+  
+  ipcRenderer.send('app_version');
+
+  ipcRenderer.on('app_version', (event, arg) => {
+    ipcRenderer.removeAllListeners('app_version');
+    version.innerText = 'Version ' + arg.version;
+  });
+
+  function hideWindow(){
+    remote.getCurrentWindow().hide();
+  }
+
+  function run(){
+   const input_values = {};
+   ipcRenderer.send('run_cmd',input_values);
+  }
+
+ function checkConnection(){ 
+  var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+  var error_message = document.getElementById("error_message"); 
+  if(condition == 'OFFLINE'){
+    document.getElementById("network_issue").style.display = "block";
+
+    document.getElementById("card_1").removeAttribute("onclick");
+    document.getElementById("card_2").removeAttribute("onclick");
+    document.getElementById("card_3").removeAttribute("onclick");
+    document.getElementById("card_4").removeAttribute("onclick");
+    document.getElementById("card_5").removeAttribute("onclick");
+    document.getElementById("card_6").removeAttribute("onclick");
+    return false;
+  }else{
+    document.getElementById("network_issue").style.display = "none";
+    
+    document.getElementById("card_1").addAttribute("onclick");
+    document.getElementById("card_2").addAttribute("onclick");
+    document.getElementById("card_3").addAttribute("onclick");
+    document.getElementById("card_4").addAttribute("onclick");
+    document.getElementById("card_5").addAttribute("onclick");
+    document.getElementById("card_6").addAttribute("onclick");
+  }
+ }
+
+ // function getInstantUtilWin(){
+ //   const input_values = {};
+ //   ipcRenderer.send('openUtilWin',input_values);
+ // }
+
+ function sendto(issue_type){
+   // const input_values = {
+   //   issueType: issue_type
+   // };
+   // ipcRenderer.send('ticketform',input_values);
+       window.location.href='category/pc_laptop.html#type='+issue_type;  
+ }
+
+ function openNav() {
+   const input_values = {};
+   ipcRenderer.send('openTabs',input_values);
+ }
+
+ function closeNav() {
+   document.getElementById("mySidenav").style.width = "0";
+ }
+
+ function reconnect(){
+    const input_values = {};
+    var window = BrowserWindow.getFocusedWindow();
+    window.close();
+    ipcRenderer.send('internet_reconnect',input_values);
+ }
+
+ function closeNotification() {
+    notification.classList.add('hidden');
+  }
+  function restartApp() {
+    ipcRenderer.send('restart_app');
+  }
+
+
+ // code for opening links in eternal browser
+let shell = require('electron').shell                
+document.addEventListener('click', function (event) {
+  console.log("CLICK EVENT");
+  if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
+    event.preventDefault()
+    shell.openExternal(event.target.href)
+  }
+})      
+
+
+
+const appVersion = require("electron").remote.app.getVersion();
+console.log(appVersion);
+
+const userData = require('electron').remote.app.getPath();
+// const app = require('electron');
+console.log(userData);
+
+
+app.getAppPath();
+console.log("this"+app.getAppPath());
+document.getElementById('version_no').innerHTML = "Version "+appVersion;
+</script>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+     <!--======================================================================================--> 
+      <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+    <!--=======================================================================================-->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!--=======================================================================================-->
+      <link rel="stylesheet" type="text/css" href="../fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--=======================================================================================-->
+      <link rel="stylesheet" type="text/css" href="../css/util.css">
+    <!--=======================================================================================-->
+      <link rel="stylesheet" type="text/css" href="../css/are_you_member.css">
+    <!--=======================================================================================-->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <!--=======================================================================================-->
+        <!--   <link href='../css/select2.min.css' rel='stylesheet' type='text/css'>
+         <script src="../js/select2.min.js"></script> -->
+         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <!--=======================================================================================-->
+    
+    <!--=======================================================================================-->
+  </head>
+  <body onLoad="gettype()">
+    <div class="main_header">
+         <a href="../index.html" class="img-margin-ticket"><img src="../images/logo1.png"/></a>
+         <span class="glyphicon glyphicon-cog pull-right setting_btn" onclick="openNav()"></span>
+    </div>
+    <div class="container">
+        <span class="text-center" style="color:red; font-weight: bold;" id="error_message"></span>
+        <br>
+        <p id="ticket_message" style="display: none"></p> 
+        <div id="ticket_body">
+          <p>
+          	 <b>Hi <span id="user_name"></span>, 
+          	   <span id="system" style="display: none" >For your device <span id="sys_name"></span></span>
+          	   <span id="wifi" style="display: none; font-size: 11px;"><span class="pull-right label label-primary">WiFi</span></span>
+          	   <span id="network" style="display: none;font-weight: bold; font-size: 11px;"><span class="pull-right label label-primary">Network</span></span>
+          	   <span id="antivirus" style="display: none;font-weight: bold; font-size: 11px;"><span class="pull-right label label-primary">Antivirus</span></span>
+          	   <span id="app" style="display: none;font-weight: bold; font-size: 11px;"><span class="pull-right label label-primary">Application</span></span>
+          	   <span id="printer" style="display: none;font-weight: bold; font-size: 11px;"><span class="pull-right label label-primary">Printers</span></span>
+        	   </b>
+          </p>
+          <form  id="pc_cat_form" name="pc_cat_form" class="form" method="post" >
+            	<input type="hidden" id="issue_type" name="issue_type" >
+              <input type="hidden" id="main_category" name="main_category" >
+            	<label>Please select the issue category</label>
+              <div class="form-group" id="system_select" style="display: none">
+                 <select class="form-control select2" id="pc_category" style="display: none"></select>
+              </div>
+              <div class="form-group" id="wifi_select" style="display: none">
+                 <select class="form-control" id="wifi_category"></select>
+              </div>
+              <div class="form-group" id="network_select" style="display: none">
+                <select class="form-control" id="network_category"></select>
+              </div>
+              <div class="form-group" id="anti_select" style="display: none">
+                <select class="form-control" id="anti_category"></select>
+              </div>
+              <div class="form-group" id="app_select" style="display: none">
+                <select class="form-control" id="app_category"></select>
+              </div>
+              <div class="form-group" id="print_select" style="display: none">
+                <select class="form-control" id="printer_category"></select>
+              </div>
+              <div class="form-group">
+
+            	  <label for="description">Description: </label>
+                <textarea class="form-control" rows="2" id="txtdesc" style="resize: none;"></textarea>
+                <span id="err_on_submit" style="color:#B22222; font-weight: bold;"></span>
+          	  </div>
+              <div class="col-xs-12">
+                <div id="all-loader"></div>
+                   <div class="col-xs-6">
+              	<button class="btn login100-form-btn btn-css" type="submit" id="btn_log">Log Call</button> 
+              </div>
+                   <div class="col-xs-6 anchor-other">
+                    <a href="../index.html" id="btn_back_one" class="btn  login100-form-btn">&nbsp;&nbsp;Back</a>
+                   </div>
+              </div>
+          </form>
+        </div>
+        <div class="text-center anchor-other">
+          <a href="../index.html" id="btn_back" class="btn  login100-form-btn" style="display: none;">Back</a>
+        </div>
+    </div>
+    <br><br>
+    <footer>
+        <div class="footer footer-bottom text-center ticket_footer"> 
+          <a href="mailto:eprompto.helpdesk@crestit.in">  <span class="text-center" style="color:white; font-size: 14px;" class="footer-text text-center"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eprompto.helpdesk@crestit.in&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp</b></span></a> 
+          <a href="tel:+912227814905"> <span style="color:white; font-size: 14px;" ><b>+91-22-27814905</b></span></a><span><a href="tel:+91 9773397735"><span style="color:white; font-size: 14px;" ><b> / +91 9773397735</b></span></a>
+          </span>
+        </div>
+    </footer>
+  
+  </body>
+
+  <script>window.$ = window.jQuery = require('jquery');</script>
+  <script>
+  	const {remote} = require('electron');
+  	const {BrowserWindow} = require('electron').remote;
+  	const {ipcRenderer} = require('electron');
+    const root_url = remote.getGlobal('root_url');
+    const ipc = require('electron').ipcRenderer;
+
+  	const sys_name = remote.getGlobal('Sys_name');
+  	document.getElementById('sys_name').innerHTML = sys_name;
+
+    const device_type_id = remote.getGlobal('deviceID');
+
+  	const username = remote.getGlobal('userName');
+  	document.getElementById('user_name').innerHTML = username;
+
+    const userid = remote.getGlobal('loginid');
+
+    const client_id = remote.getGlobal('clientID');
+
+    const asset_id = remote.getGlobal('assetID');
+
+    function getCategoryData($type,$req_type,$main_cat){
+      var category_element_id = '';
+      document.getElementById('main_category').value = $main_cat; 
+      if($req_type == 'PC'){
+        var select = document.getElementById("pc_category"); 
+        document.getElementById("pc_category").style.display="block";
+      }else if($req_type == 'Wifi'){
+        var select = document.getElementById("wifi_category"); 
+        document.getElementById("wifi_category").style.display="block";
+      }else if($req_type == 'Network'){
+        var select = document.getElementById("network_category"); 
+        document.getElementById("network_category").style.display="block";
+      }else if($req_type == 'Antivirus'){
+        var select = document.getElementById("anti_category"); 
+        document.getElementById("anti_category").style.display="block";
+      }else if($req_type == 'App'){
+        var select = document.getElementById("app_category"); 
+        document.getElementById("app_category").style.display="block";
+      }else if($req_type == 'Printers'){
+        var select = document.getElementById("printer_category"); 
+        document.getElementById("printer_category").style.display="block";
+      }
+      
+
+      var length = select.options.length;
+      for (i = length-1; i >= 0; i--) {
+        select.options[i] = null;
+      }
+
+      if($type == 1){
+        parent_id = 13;
+      }else if($type == 2){
+        parent_id = 15;
+      }else if($type == 556){
+        parent_id = 557;
+      }else{
+        parent_id = $type;
+      }
+
+      $.ajax({
+          url: root_url+'/main.php',
+          type: 'POST',
+          data: {funcType:'fillCategory',parent_id: parent_id,reqtype: $req_type},
+          success: function (data) {
+             output = JSON.parse(JSON.stringify(data));
+             if(output.status == 'valid'){
+                if(output.result && output.result.length > 0 ){
+                  for(var i = 0; i < output.result.length; i++) {
+                    var el = document.createElement("option");
+                    el.textContent = output.result[i][1];
+                    el.value = output.result[i][0];
+                    select.appendChild(el);
+                  }
+                }
+              }
+          },
+          error: function (xhr, status, error) {
+              console.log('Error: ' + error.message);
+          }
+      });
+
+    }
+    function openNav() {
+       //document.getElementById("mySidenav").style.width = "150px";
+        const input_values = {};
+        ipcRenderer.send('openTabs',input_values);
+     }
+
+     // function Back(){
+     //    const input_values = {};
+     //    ipcRenderer.send('back_to_main',input_values);
+     // }
+
+     function closeNav() {
+       document.getElementById("mySidenav").style.width = "0";
+     }
+
+    function reconnect(){
+      const input_values = {};
+      var window = BrowserWindow.getFocusedWindow();
+      window.close();
+      ipcRenderer.send('internet_reconnect',input_values);
+    }
+
+  	const form = document.querySelector('form');
+  	form.addEventListener('submit',submitForm);
+
+  	function submitForm(e){ 
+  		e.preventDefault(); 
+
+      var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+      var error_message = document.getElementById("error_message"); 
+      if(condition == 'OFFLINE'){
+        error_message.innerHTML = 'No internet connection';
+        setTimeout(function(){
+
+          error_message.innerHTML = '';
+        },2000);
+        window.scrollTo(0,0);
+        return false;
+      }/*else{
+        error_message.innerHTML = 'You are back';
+      }*/
+
+      var content = document.querySelector('#txtdesc').value;
+      if(content.length < 1){
+        document.getElementById('err_on_submit').innerText='Require description';
+      }else{
+        document.getElementById('err_on_submit').innerText='';
+        document.getElementById('all-loader').style.display='block';
+        var vali_btn_log =  document.getElementById('btn_log');
+        vali_btn_log.setAttribute('style', 'display:none !important');
+        var vali_btn_back =  document.getElementById('btn_back_one');
+        vali_btn_back.setAttribute('style', 'display:none !important');
+
+
+        issue_type = document.querySelector('#issue_type').value;
+        if(issue_type == 'PC'){
+          categories = document.querySelector('#pc_category').value;
+        }else if(issue_type == 'WiFi'){
+          categories = document.querySelector('#wifi_category').value;
+        }else if(issue_type == 'Network'){
+          categories = document.querySelector('#network_category').value;
+        }else if(issue_type == 'Antivirus'){
+          categories = document.querySelector('#anti_category').value;
+        }else if(issue_type == 'Application'){
+          categories = document.querySelector('#app_category').value;
+        }else if(issue_type == 'Printers'){
+          categories = document.querySelector('#printer_category').value;
+        }
+
+        const input_values = {
+          type: document.querySelector('#main_category').value,
+          disp_type : issue_type,
+          category: categories,
+          desc : document.querySelector('#txtdesc').value,
+          user_id : userid,
+          clientid : client_id,
+          assetID : asset_id
+        };
+        ipcRenderer.send('form_data',input_values);
+      }
+  	}
+
+  	function gettype(){
+       var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+       var error_message = document.getElementById("error_message"); 
+        if(condition == 'OFFLINE'){
+          error_message.innerHTML = 'No internet connection';
+          setTimeout(function(){
+
+            error_message.innerHTML = '';
+          },10000);
+          window.scrollTo(0,0);
+          return false;
+        }
+  		 var a=window.location.href.split('#')[1],
+  		 type=a.split('=')[1];
+  		 document.getElementById("issue_type").value = type;
+  		 if(type=='PC'){
+  		 	document.getElementById("system").style.display = "block";
+  		 	document.getElementById("system_select").style.display = "block";
+        
+        // getCategoryData() 1st parameter mean it_master_id in et_issue_type_master and 3rd parameter is to differentiate the dropdown value of PC and for rest of the category like WIFI it is not of use.
+
+        if(device_type_id == '6'){ //desktop
+          getCategoryData(1,'PC',1);
+        }else if(device_type_id == '4'){ //laptop
+          getCategoryData(2,'PC',2);
+        }else if(device_type_id == '16'){
+          getCategoryData(556,'PC',3); // cloud server
+        }
+  		 }else if(type=='WiFi'){
+  		 	document.getElementById("wifi").style.display = "block";
+  		 	document.getElementById("wifi_select").style.display = "block";
+        getCategoryData(179,'Wifi',1);
+  		 }else if(type == 'Network'){
+  		 	document.getElementById("network").style.display = "block";
+  		 	document.getElementById("network_select").style.display = "block";
+        getCategoryData(47,'Network',1);
+  		 }else if(type == 'Antivirus'){
+  		 	document.getElementById("antivirus").style.display = "block";
+  		 	document.getElementById("anti_select").style.display = "block";
+        getCategoryData(265,'Antivirus',1);
+  		 }else if(type == 'Application'){
+  		 	document.getElementById("app").style.display = "block";
+  		 	document.getElementById("app_select").style.display = "block";
+        getCategoryData(156,'App',1);
+  		 }else if(type == 'Printers'){
+  		 	document.getElementById("printer").style.display = "block";
+  		 	document.getElementById("print_select").style.display = "block";
+        getCategoryData(42,'Printers',6);
+  		 }
+  	}
+
+    function newwin(win_type){
+      const input_values = {
+        type: win_type, 
+        clientid : client_id
+      };
+      ipcRenderer.send('newwindow',input_values);
+   }
+
+    ipcRenderer.on('ticket_submit', (event, data) => {
+
+      if(data['status'] == 1){
+        document.getElementById('ticket_message').innerText='\n\n'+'Your ticket is raised successfully with Ticket No. '+data['ticketNo']+'\n\n';
+        document.getElementById('ticket_message').style.display='block';
+        document.getElementById('ticket_body').style.display='none';
+        document.getElementById('ticket_body').style.color='blue';
+        var vali_btn_back =  document.getElementById('btn_back');
+        vali_btn_back.setAttribute('style', 'display:block !important');
+      }else if(data['status'] == 0){
+        document.getElementById('ticket_message').innerText='\n\n'+'Ticket not submitted. Please try again!'+'\n\n';
+        document.getElementById('ticket_message').style.display='block';
+        document.getElementById('ticket_body').style.display='block';
+        document.getElementById('ticket_body').style.color='red';
+        var vali_btn_back =  document.getElementById('btn_back');
+        vali_btn_back.setAttribute('style', 'display:block !important');
+      }
+    });
+  </script>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ePrompto</title>
+<!--===============================================================================================-->  
+  <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<!--===============================================================================================-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+<!--===============================================================================================-->
+ <!--  <link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css"> -->
+<!--===============================================================================================-->
+<!--   <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css"> -->
+<!--===============================================================================================-->  
+ <!--  <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css"> -->
+<!--===============================================================================================-->
+ <!--  <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css"> -->
+<!--===============================================================================================-->
+ <!--  <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css"> -->
+<!--===============================================================================================-->  
+  <!-- <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css"> -->
+<!--===============================================================================================-->
+  <link rel="stylesheet" type="text/css" href="css/util.css">
+  <link rel="stylesheet" type="text/css" href="css/are_you_member.css">
+<!--===============================================================================================-->
+  </head>
+  <body>
+    <div class="container col-md-12">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+            <h3> Member Register </h3>
+            <form action="/">
+              <div class="title">
+                  <span style="color:red" id="error_message"></span> 
+              </div>
+              <div class="info">
+                <span>
+                  <select id="title_type">
+                  <option value="Mr">Mr</option>
+                  <option value="Miss">Miss</option>
+                  <option value="Mrs">Mrs</option>
+                </select> </span> 
+               <span> <input class="fname" type="text" name="fname" id="fname" placeholder="First name" pattern="[A-Za-z ]+" required oninvalid="this.setCustomValidity('Enter only alphabet *')" oninput="this.setCustomValidity('')"> </span>
+               
+                <input class="lname" type="text" name="lname" id="lname" placeholder="Last name" pattern="[A-Za-z ]+" required oninvalid="this.setCustomValidity('Enter only alphabet *')" oninput="this.setCustomValidity('')">
+
+                <span style="color:red; font-weight: bold;" id="err_email" ></span>
+                <input type="email" name="email" id="email" placeholder="Email" onchange="checkDuplication(this.value)" required>
+                <button type="button" style="display: none !important;" id="btn_getOTP" class="btn new login100-form-btn btn-css" onclick="sendOTP()">Get OTP</button>
+
+                <div class="form-inline">
+                  <div class="form-group">
+                    <input class="form-control otp_class" style="display: none;" type="text" name="otp" id="otp" placeholder="Email OTP"><span id="otp_message"></span>
+                    <span style="display: none;" id="resend_otp"> <a onclick="sendOTP()"><i class="fa fa-refresh" style="cursor:pointer" aria-hidden="true">&nbsp;Resend</i></a></span> 
+                  </div>
+                </div>
+  
+                <input type="text" name="cont_num" id="cont_num" placeholder="Contact number" pattern="[0-9]+"  maxlength="10" minlength="10" required oninvalid="this.setCustomValidity('Enter only number *')" oninput="this.setCustomValidity('')">
+
+                <input type="text" name="company_name" id="company_name" placeholder="Company Name" >
+
+                <select id="device_type">
+                  <option value="4">Laptop</option>
+                  <option value="6">Desktop</option>
+                </select>
+              </div>
+               
+                <div id="all-loader"></div>
+                 <button class="btn new login100-form-btn btn-css" id="btn_submit" type="submit" href="/">Submit</button>
+                 <button class="btn new login100-form-btn btn-css" id="btn_cancel" onclick="cancelReg()">Cancel</button>
+                 
+        
+            </form>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+  </body>
+  <script>
+    const electron = require('electron');
+    const {ipcRenderer} = electron;
+    const {BrowserWindow} = require('electron').remote;
+    const {remote} = require('electron');
+ 
+    const form = document.querySelector('form');
+    form.addEventListener('submit',submitRegForm);
+
+    function sendOTP(){ 
+      var btn_getOTP =  document.getElementById('btn_getOTP');
+      btn_getOTP.setAttribute('style', 'display:none !important'); 
+      document.getElementById('otp').style.display='block';
+
+      var email = document.getElementById("email").value;
+      var title = document.getElementById("title_type").value;
+      var fname = document.getElementById("fname").value;
+      var lname = document.getElementById("lname").value;
+
+      var full_name = title+' '+fname+' '+lname;
+
+      const input_values = {
+        emailID: email,
+        name: full_name
+      };
+      ipcRenderer.send('sendOTP',input_values);
+
+    }
+
+     function cancelReg(){
+        const input_values = {};
+        ipcRenderer.send('cancel_reg',input_values);
+     }
+
+     function submitRegForm(e){
+        e.preventDefault();
+        var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+        var error_message = document.getElementById("error_message"); 
+        if(condition == 'OFFLINE'){
+          error_message.innerHTML = 'No internet connection';
+          window.scrollTo(0,0);
+          return false;
+        }
+
+        document.getElementById('all-loader').style.display='block';
+        var btn_submit =  document.getElementById('btn_submit');
+        btn_submit.setAttribute('style', 'display:none !important');
+
+        var btn_cancel =  document.getElementById('btn_cancel');
+        btn_cancel.setAttribute('style', 'display:none !important');
+
+        //var sys_key = document.querySelector('#sys_key').value;
+        var dev_type = document.querySelector('#device_type').value;
+        var mem_first_name = document.querySelector('#fname').value;
+        var mem_last_name = document.querySelector('#lname').value;
+        var mem_email = document.querySelector('#email').value;
+        var mem_contact_no = document.querySelector('#cont_num').value;
+        var mem_comp_name = document.querySelector('#company_name').value;
+        var title_type = document.querySelector('#title_type').value;
+        var otp = document.querySelector('#otp').value;
+
+        if(mem_first_name != '' && mem_last_name != '' && mem_email != '' && mem_contact_no != '' && dev_type != '' ){ 
+          const input_values = {
+            title: title_type,
+            mem_first_name: mem_first_name,
+            mem_last_name: mem_last_name,
+            mem_email: mem_email,
+            mem_contact: mem_contact_no,
+            mem_company: mem_comp_name, 
+            device_type : dev_type,
+            otp : otp
+          };
+          
+          ipcRenderer.send('member_registration',input_values);
+          document.login_form.reset();
+        }
+     }
+
+      function checkDuplication(email){
+         const input_values = {
+           email: email
+         };
+         ipcRenderer.send('check_email',input_values);
+      }
+
+      ipcRenderer.on('checked_email', (event, data) => { 
+        if(data == 'invalid'){
+          document.getElementById("err_email").innerText = 'Email Id already exist';
+          document.getElementById("email").value = "";
+          window.scrollTo(0,0);
+          var btn_getOTP =  document.getElementById('btn_getOTP');
+          btn_getOTP.setAttribute('style', 'display:none !important'); 
+        }else if(data == 'valid'){
+          document.getElementById("err_email").innerText = '';
+          document.getElementById("btn_getOTP").style.display = 'block'; 
+          //document.getElementById("email").value = "";
+        }
+      });
+
+      ipcRenderer.on('error_message', (event, data) => { 
+        if(data != ''){
+          document.getElementById("error_message").innerText = data;
+        }
+        document.getElementById('all-loader').style.display='none';
+        var btn_submit =  document.getElementById('btn_submit');
+        btn_submit.setAttribute('style', 'display:block !important');
+
+        var btn_cancel =  document.getElementById('btn_cancel');
+        btn_cancel.setAttribute('style', 'display:block !important');
+      });
+
+      ipcRenderer.on('sendOTP_status', (event, data) => { 
+        if(data == 'valid'){
+          document.getElementById("otp_message").innerText='Please check your email for OTP';
+          setTimeout(function(){
+            document.getElementById("otp_message").innerText='';
+          },2000);
+
+          setTimeout(function(){
+            document.getElementById('resend_otp').style.display='block';
+          },5000);
+        }
+      });
+
+      ipcRenderer.on('otp_message', (event, data) => { 
+        if(data != ''){
+          document.getElementById("otp_message").innerText = data;
+        }
+        
+        setTimeout(function(){
+          document.getElementById('otp_message').innerText='';
+        },5000);
+
+        document.getElementById('all-loader').style.display='none';
+        var btn_submit =  document.getElementById('btn_submit');
+        btn_submit.setAttribute('style', 'display:block !important');
+
+        var btn_cancel =  document.getElementById('btn_cancel');
+        btn_cancel.setAttribute('style', 'display:block !important');
+
+      });
+  </script>
+</html>

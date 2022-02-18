@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ePrompto-ITAM</title>
+    <link rel="stylesheet" href="css/are_you_member.css">
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" > -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+ 
+  </head>
+  <body>
+   <div class="container">
+        <!--   <center class=""><img src="images/logo1.png"/></center>  -->
+    <div class="main-block">
+      <div class="block-item">
+         <center class="resolve-now">Resolve Now</center> 
+       
+        <br>
+         <button class="btn member login100-form-btn btn-css" onclick="UpdateMember()"><i class="fa fa-users"></i><span>Existing Member  </span></button>
+       
+           <p><small>* Add new user/device, raise ticket</small></p><br>
+
+        <button class="btn new login100-form-btn btn-css" onclick="createNewMember()" ><i class="fa fa-user-plus"></i><span>New Member</span></button>
+        <p><small>* Register and raise ticket</small></p>
+      </div>
+    </div>
+     </div>
+  </body>
+</html>
+<script type="text/javascript">
+    const electron = require('electron');
+    const {BrowserWindow} = require('electron').remote;
+    const {ipcRenderer} = require('electron');
+
+     function createNewMember(){
+        const input_values = {};
+        ipcRenderer.send('create_new_member',input_values);
+     }
+
+     function UpdateMember(){
+        const input_values = {};
+        ipcRenderer.send('update_member',input_values);
+     }
+
+
+</script> 

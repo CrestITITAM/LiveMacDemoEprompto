@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+</head>
+<style type="text/css">
+	.close{
+		  background-color: #555555;
+		  border: none;
+		  color: white;
+		  padding: 15px 32px;
+		  margin-left: 30%;
+		  text-align: center;
+		  text-decoration: none;
+		  display: inline-block;
+		  font-size: 16px;
+	}
+</style>
+<body>
+<div>
+  
+  <div id="myModal">
+    <p><input type="checkbox" class="form-check-input" id="is_policy_check" name="is_policy_check" style="width: 15px;margin-left: 0px;" onclick="IsChecked()"><b style="padding-bottom: 25px;"> Accept Privacy Policy</b><br>We use cookies to enhance the experience, to display customized content in accordance with your browser settings, and to help us better understand how you use our website. To read about how we use cookies and how you can control them <a id="policy" href="#" onclick="openPolicy()">here</a>. If you continue to use this site, you consent to our use of cookies..</p>
+  </div>
+ 
+</div>
+
+
+</body>
+<!-- <div class="modal fade" id="view" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <h1>Hello</h1>
+        </div>
+    </div>
+</div> -->
+
+<script>
+	const remote = require('electron').remote;
+	const {ipcRenderer} = require('electron');
+	const client_id = remote.getGlobal('clientID');
+
+	document.getElementById("close-btn").addEventListener("click", function (e) {
+       var window = remote.getCurrentWindow();
+       window.close();
+    });
+
+	function IsChecked(){ 
+		const input_values = {
+			clientID: client_id
+		};
+        ipcRenderer.send('update_is_itam_policy',input_values);
+        var window = remote.getCurrentWindow();
+        window.close();
+	}
+
+	function openPolicy(){
+		const input_values = {};
+        ipcRenderer.send('open_policy',input_values);
+	}
+
+	
+</script>
+</html>
