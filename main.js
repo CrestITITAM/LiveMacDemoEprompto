@@ -28,6 +28,18 @@ const child_process = require('child_process');
 
 const notifier = require('node-notifier'); // temp
 
+// const logger = require("electron-log");
+
+// autoUpdater.logger = require("electron-log");
+// autoUpdater.log.transports.file.level = "info";
+
+// autoUpdater.logger.transports.file.level = "info";
+// autoUpdater.log["transports"].file.level = "info";
+
+// require('autoUpdater')({
+//   logger: require('electron-log')
+// })
+
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/IconTemplate3.png');
 
@@ -39,8 +51,8 @@ const iconPath = path.join(__dirname,'images/IconTemplate3.png');
 
 
 
-// global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
-global.root_url = 'http://localhost/end_user_backend';
+global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
+// global.root_url = 'http://localhost/end_user_backend';
 // global.root_url = 'http://localhost/eprompto_master';
 
 
@@ -83,6 +95,10 @@ app.on('ready',function(){
     }
     
     tray = new Tray(iconPath);
+    tray.setIgnoreDoubleClickEvents(true);
+    
+    // app.dock.hide();
+
 
     log.transports.file.level = 'info';
     log.transports.file.maxSize = 5 * 1024 * 1024;
@@ -182,7 +198,7 @@ app.on('ready',function(){
   }); 
 
 app.commandLine.appendSwitch('disable-http2');
-autoUpdater.requestHeaders = {'Cache-Control' : 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'};
+// autoUpdater.requestHeaders = {'Cache-Control' : 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'};
 
 function checkSecuritySelected(system_key){
   console.log("Inside checkSecuritySelected");
@@ -659,8 +675,8 @@ function setGlobalVariable(){
         height: 250,
         icon: __dirname + '/images/ePrompto_png.png',
         titleBarStyle: 'hiddenInset',
+        // titleBarStyle: 'customButtonsOnHover',
         frame: false,
-        titleBarStyle: 'hiddenInset', // temp mac
         resizable:false,
         transparent:true,        
         // x: width - 450,
@@ -682,8 +698,21 @@ function setGlobalVariable(){
       }));
 
         mainWindow.once('ready-to-show', () => {
-        autoUpdater.checkForUpdates();
+
+                
+        // console.log("update function hit");
+        // autoUpdater.logger = log;
+        // autoUpdater.logger.transports.file.level = 'info';
         // autoUpdater.checkForUpdatesAndNotify();
+
+
+        console.log("Check for updates hit");
+        // autoUpdater.setFeedURL('http://developer.eprompto.com/');
+        log.transports.file.level = "debug";
+        autoUpdater.logger = log;
+        autoUpdater.logger.transports.file.level = 'info';
+        // autoUpdater.checkForUpdates();
+        autoUpdater.checkForUpdatesAndNotify();
         // autoUpdater.onUpdateAvailable();
       });
 
@@ -700,11 +729,24 @@ function setGlobalVariable(){
           }
       });
 
+      // var isAppQuitting = false;
+      // app.on('before-quit', function (e) {
+      //     isAppQuitting = true;
+      //   });
 
       mainWindow.on('close', function (e) {
-        if (process.platform !== "darwin") {
-          app.quit();
-        }
+        // if (!isAppQuitting) {
+        //   e.preventDefault();
+        //   mainWindow.hide();
+        // }
+
+        app.quit();
+
+        // if (process.platform !== "darwin") {
+          // app.quit();
+        // }
+
+
         // // if (electron.app.isQuitting) {
         // //  return
         // // }
@@ -2855,9 +2897,32 @@ ipcMain.on('app_version', (event) => {
   event.sender.send('app_version', { version: app.getVersion() });
 });
 
-autoUpdater.on('update-available', () => {
+autoUpdater.on('update-available', (info) => {
+  console.log("UPDATE AVAILABLE");
   mainWindow.webContents.send('update_available');
 });
+
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log("update-downloaded event triggered");
+  autoUpdater.logger.transports.file.level = 'info';
+  mainWindow.setClosable(true);
+  autoUpdater.quitAndInstall();
+});
+
+
+autoUpdater.on('error', (err) => {
+  console.log(err);
+});
+
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log("Update not available");
+})
+
+
+
+
 //autoUpdater.on('update-downloaded', () => {
   //updateDownloaded = true;
   //mainWindow.webContents.send('update_downloaded');
@@ -2867,31 +2932,31 @@ autoUpdater.on('update-available', () => {
 //   autoUpdater.quitAndInstall();
 // });
 
-autoUpdater.on('update-downloaded', () => {
-  notifier.notify(
-    {
-      title: 'ITAM Version 2.0.62 Released. Click to Restart Application.', //put version number of future release. not current.
-      message: 'ITAM will be Updated on Application Restart.',
-      icon: path.join(app.getAppPath(), '/images/ePrompto.ico'),
-      sound: true,
-      wait: true, 
-      appID: "Click to restart Application"
-    },
-    function (err, response, metadata) {
-      // console.log(response);
-      // console.log(err);
-      if(response == undefined){
-        console.log("auto updater quit and install function called.")
-        autoUpdater.quitAndInstall();
-      }
+// autoUpdater.on('update-downloaded', () => {
+//   notifier.notify(
+//     {
+//       title: 'New ITAM Version Released. Click to Restart Application.', //put version number of future release. not current.
+//       message: 'ITAM will be Updated on Application Restart.',
+//       icon: path.join(app.getAppPath(), '/images/ePrompto.ico'),
+//       sound: true,
+//       wait: true, 
+//       appID: "Click to restart Application"
+//     },
+//     function (err, response, metadata) {
+//       // console.log(response);
+//       // console.log(err);
+//       if(response == "activate"){
+//         console.log("auto updater quit and install function called.")
+//         autoUpdater.quitAndInstall();
+//       }
   
-    }
-  );
+//     }
+//   );
 
-  // console.log(app.getVersion()); // temp
-  // title:'ITAM Version'+AppVersionNumber+'Released. Click to Restart Application.'
+//   // console.log(app.getVersion()); // temp
+//   // title:'ITAM Version'+AppVersionNumber+'Released. Click to Restart Application.'
 
-});
+// });
 
 ipcMain.on('checkfmfselected',function(e,form_data){  
   require('dns').resolve('www.google.com', function(err) {
@@ -5263,3 +5328,19 @@ ipcMain.on('Task_Tab_Update',function(e,form_data){
   request.write(body, 'utf-8'); 
   request.end();
 });
+
+
+
+// console.log("Update functions hit");
+
+// autoUpdater.on('update-available', () => {
+//   mainWindow.webContents.send('update_available');
+// });
+// autoUpdater.on('update-downloaded', () => {
+//   mainWindow.webContents.send('update_downloaded');
+// });
+
+
+// ipcMain.on('restart_app', () => {
+//   autoUpdater.quitAndInstall();
+// });

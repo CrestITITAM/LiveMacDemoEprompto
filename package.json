@@ -1,19 +1,25 @@
 {
   "name": "eprompto-ITAM",
-  "version": "2.0.61",
+  "version": "3.0.73",
   "description": "To AutoUpdate in ITAM",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "deploy": "electron-builder build --win --publish always",
+    "build": "electron-builder build --mac --publish never",
+    "deploy": "electron-builder build --mac --publish always",
     "dist": "electron-builder"
   },
   "build": {
     "appId": "com.eprompto.itam",
-    "mac" : {
-      "target" : "dmg",
-      "icon" : "images/ePromptoMac.png"
-    }
+    "mac": {
+      "target": "dmg",
+      "icon": "images/ePromptoMac.png",
+      "type": "distribution",
+      "category": "public.app-category.developer-tools"
+    },
+    "publish": [
+      "github"
+    ]
   },
   "repository": {
     "type": "git",
@@ -27,7 +33,6 @@
     "csvtojson": "^2.0.10",
     "electron": "^11.0.2",
     "electron-builder": "^22.9.1",
-    "electron-log": "^4.3.0",
     "electron-updater": "^4.3.5",
     "fs": "0.0.1-security",
     "ip": "^1.1.5",

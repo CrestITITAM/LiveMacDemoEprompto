@@ -25,6 +25,20 @@ a, a:visited, a:active {
   text-decoration: none !important ;
 }
 
+#notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 200px;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: gray;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.hidden {
+  display: none;
+}
+
 #clickable-region {
   display: inline-block;
   position: absolute;
@@ -36,8 +50,8 @@ a, a:visited, a:active {
 #settings
 {
   position: absolute;
-  top: 3px;
-  left: 9px;
+  top: 2px;
+  left: 220px;
   font-size: 26px;
   text-align: center;
   color: #000864;
