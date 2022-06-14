@@ -30,10 +30,10 @@ const child_process = require('child_process');
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/IconTemplate3.png');
 
-global.root_url = 'https://www.eprompto.com/itam_backend_end_user';
+// global.root_url = 'https://www.eprompto.com/itam_backend_end_user';
 // global.root_url = 'https://poc.eprompto.com/itam_backend_end_user';
 
-// global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
+global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 // global.root_url = 'http://localhost/end_user_backend';
 // global.root_url = 'http://localhost/eprompto_master';
 
