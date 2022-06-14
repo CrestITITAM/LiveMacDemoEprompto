@@ -1,6 +1,6 @@
 {
   "name": "eprompto-ITAM",
-  "version": "3.0.83",
+  "version": "3.0.86",
   "description": "To AutoUpdate in ITAM",
   "main": "main.js",
   "scripts": {
@@ -24,14 +24,14 @@
       {
         "provider": "github",
         "owner": "CrestITITAM",
-        "repo": "LiveMacEprompto"
+        "repo": "LiveMacDemoEprompto"
       }
     ],
     "afterSign": "js/notarize.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CrestITITAM/LiveMacEprompto.git"
+    "url": "https://github.com/CrestITITAM/LiveMacDemoEprompto"
   },
   "author": "Crest IT Consulting Pvt Ltd",
   "license": "ISC",
